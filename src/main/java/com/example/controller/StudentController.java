@@ -2,41 +2,33 @@ package com.example.controller;
 
 import com.example.model.Student;
 import com.example.service.StudentService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+@Controller
+@RequestMapping("/students")
+public class StudentController {
 
-@RestController
-@RequestMapping("/api/students")
-public class StudentController
-{
     @Autowired
-    private StudentService service;
+    private StudentService studentService;
 
     @GetMapping
-    public List<Student> getAllStudents()
-    {
-        System.out.println("getAllStudents() called");
-        return service.getAllStudents();
-    }
-
-    @GetMapping("/{id}")
-    public Student getStudentById(@PathVariable Long id)
-    {
-        return service.getStudentsById(id).orElse(null);
+    public String showForm(Model model) {
+        model.addAttribute("student", new Student());
+        return "index"; // Loads index.html from /resources/templates
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody @Valid Student student)
-    {
-        return service.saveStudent(student);
+    public String saveStudent(@ModelAttribute Student student) {
+        studentService.saveStudent(student);
+        return "redirect:/students/list";
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable Long id)
-    {
-        service.deleteStudent(id);
+    @GetMapping("/list")
+    public String listStudents(Model model) {
+        model.addAttribute("students", studentService.getAllStudents());
+        return "students"; // Loads students.html to show all data
     }
 }
